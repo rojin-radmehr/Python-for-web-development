@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Auber - Home</title>
+        <style>
+            a{
+                text-decoration: none;
+                color: black;
+                background-color: rgb(255, 255, 255);
+                border: 2px solid #5C8374;
+            }
+            .btn {
+                transition-duration: 0.4s;
+                padding: 10px;
+                display: inline-block;
+                justify-content: center;
+                border-radius: 10px;
+
+            }
+            .btn:hover {
+                background-color:#5C8374;
+                color: white;
+                box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+            } 
+            .req {
+                display: flex;
+                justify-content: center;
+                align-items: center;            
+            }
+            .ride {
+                display: inline-block;
+                background-color: hwb(184 17% 66%);
+                color: white;
+                padding: 50px;
+                border-radius: 5px;
+                justify-content: center;
+                width: 300px;
+                height: 100px;
+            }
+
+            .container {
+                align-items: center;
+                padding-top: 40px;
+                display: inline-block;
+                justify-content: center;
+
+            }
+
+            .cover {
+                display: inline-block;
+                padding: 10px;
+                justify-content: center;
+                height: 200px;
+            }
+
+            h2 {
+                color: white;
+            }
+            h4 {
+                color: #5C8374;
+            }
+            body {
+                padding: 5px;
+                background-color: #040D12 ;
+            }
+        </style>
+    </head>
+<body>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class="flash-messages">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+    <a class="btn" href="/logout">Logout</a>
+    <a class="btn" href="/profile">Profile</a>
+
+    <br>
+    <h2>Welcome, {{user.username}}!</h2>
+
+    <h4>Current available rides: </h4>
+    <div class="container">
+        {% for ride in rides %}
+            <div class="cover">
+                <div class="ride">
+                    <div class="title">Title: {{ride.title}}</div>
+                    <div class="salary">Salary : {{ride.salary}}</div>
+                    <div class="company">Company : {{ride.company_name}}</div>
+                    <div class="location">Location : {{ride.location}}</div>
+                    <a class="addbtn" href="/take_ride/{{ride._id}}">Take Ride</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    
+</body>
+</html>
