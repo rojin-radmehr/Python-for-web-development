@@ -31,11 +31,12 @@
                 display: inline-block;
                 background-color: hwb(184 17% 66%);
                 color: white;
-                padding: 50px;
+                padding: 70px;
+                padding-top: 20px;
                 border-radius: 5px;
                 justify-content: center;
                 width: 300px;
-                height: 100px;
+                height: 160px;
             }
 
             .container {
@@ -50,7 +51,7 @@
                 display: inline-block;
                 padding: 10px;
                 justify-content: center;
-                height: 200px;
+                height: 250px;
             }
 
             h2 {
@@ -87,10 +88,14 @@
         {% for ride in rides %}
             <div class="cover">
                 <div class="ride">
-                    <div class="title">Title: {{ride.title}}</div>
-                    <div class="salary">Salary : {{ride.salary}}</div>
-                    <div class="company">Company : {{ride.company_name}}</div>
-                    <div class="location">Location : {{ride.location}}</div>
+                    <div class="name">Name: {{ride.posted_by}}</div>
+                    <div class="start">Start : {{ride.start}}</div>
+                    <div class="end">End : {{ride.end}}</div>
+                    <div class="date">Date : {{ride.date}}</div>
+                    <div class="time">Time : {{ride.time}}</div>
+                    <div class="car">Car : {{ride.car}}</div>
+                    <div class="description">Description : {{ride.description}}</div>
+                    <!-- <div class="price">Price : {{ride.price}}</div> -->
                     <a class="addbtn" href="/take_ride/{{ride._id}}">Take Ride</a>
                 </div>
             </div>

@@ -17,6 +17,8 @@ from dotenv import load_dotenv
 from random import randrange
 import time
 from flask_babel import Babel, _
+import folium
+import re
 
 
 
@@ -66,6 +68,7 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 mail= Mail(app)
+
 
 vehicles = [
     'Sedan',
@@ -252,7 +255,19 @@ def register_user(username, password, email, display_name, role, car):
         db.commit()
         return True
     
+
+def check_coor(coor):
     
+    coordinate_pattern = r"Latitude:\s*(-?\d+\.\d+)\s*Longitude:\s*(-?\d+\.\d+)"
+
+    # Find all matches in the text
+    matches = re.findall(coordinate_pattern, coor)
+
+    for match in matches:
+        x, y = map(float, match)
+    return (x,y)
+
+ 
 @app.errorhandler(404)
 def not_found_error(error):
     selected_language = request.args.get('lan','en')
@@ -280,6 +295,8 @@ def welcome_page():
 @app.route('/main',methods=['GET','POST'])
 def main_page():
     if current_user.role == "user":
+        
+            
         return render_template(f'home_user.html', user=current_user)
     elif current_user.role == "admin":
         return render_template(f'home_admin.html', user=current_user)
@@ -294,24 +311,92 @@ def main_page():
 def request_ride():
     if current_user.role == "user":
         if request.method == 'POST':
-            name=request.form['name']
-            ingredients=request.form['ingredients']
-            cuisine=request.form['cuisine']
-            instructions=request.form['instructions']
+            start_coor=request.form['start']
+            start=check_coor(start_coor)
+            end_coor=request.form['end']
+            end=check_coor(end_coor)
+            date=request.form['date']
+            time=request.form['time']
+            car=request.form['car']
+            description=request.form['description']
             ride = {
                         'posted_by': current_user.username,
-                        'name': name,
-                        'ingredients': ingredients,
-                        'cuisine': cuisine,
-                        'instructions' : instructions,
+                        'start': start,
+                        'end': end,
+                        'date': date,
+                        'time' : time,
+                        'car': car,
+                        'description': description,
+                        'status': 'waiting',
+                        'price': randrange(10, 100),
             }
-            ride_collection.insert_one(ride)
-            return redirect('/wait_user')
-        return render_template('request_ride.html', user=current_user, cars=vehicles)
+            idobj = ride_collection.insert_one(ride)
+            id = str(idobj.inserted_id)
+            return redirect('/wait_user/'+id)
+        map_obj = folium.Map(location=[49.048670, 10.195313], zoom_start=3)
+        folium.LatLngPopup().add_to(map_obj)
+        return render_template('request_ride.html', user=current_user, cars=vehicles, map=map_obj._repr_html_())
     else:
         flash('Drivers can not request rides. If you want to request a ride, make another profile to do so','danger')
         return redirect('/main')
+    
 
+
+@app.route('/wait_user/<ride_id>',methods=['GET','POST'])
+@login_required
+def wait_user(ride_id):
+    if current_user.role == "user":
+        ride = ride_collection.find_one({'_id': ObjectId(ride_id)})
+        if ride['status'] == "in-route":
+            return redirect('/riding/'+ride_id)
+        return render_template('wait_user.html', user=current_user, ride=ride)
+    else:
+        flash('Drivers can not request rides. If you want to request a ride, make another profile to do so','danger')
+        return redirect('/main')
+    
+    
+@app.route('/cancel_ride/<ride_id>',methods=['GET','POST'])
+@login_required
+def cancel_ride(ride_id):
+    if current_user.role == "user":
+        ride_collection.update_one({'_id': ObjectId(ride_id)}, {'$set': {'status': 'cancelled'}})
+        return redirect('/main')
+    elif current_user.role == "driver":
+        ride_collection.update_one({'_id': ObjectId(ride_id)}, {'$set': {'status': 'waiting'}})
+        return redirect('/main')    
+
+@app.route('/take_ride/<ride_id>')
+@login_required
+def take_ride (ride_id):
+    if current_user.role == "driver":
+        ride_collection.update_one({'_id': ObjectId(ride_id)}, {'$set': {'status': 'in-route'}})
+        return redirect('/riding/'+ride_id)
+    else:
+        flash('Only drivers can take rides','danger')
+        return redirect('/main')
+    
+@app.route('/riding/<ride_id>')
+@login_required
+def riding (ride_id):
+        ride = ride_collection.find_one({'_id': ObjectId(ride_id)})
+        return render_template('riding.html', user=current_user, ride=ride)
+
+@app.route('/finish_ride/<ride_id>')
+@login_required
+def finish_ride (ride_id):
+    if current_user.role == "driver":
+        ride_collection.update_one({'_id': ObjectId(ride_id)}, {'$set': {'status': 'finished'}})
+        return redirect('/main')
+    else:
+        flash('Only drivers can finish rides','danger')
+        return redirect('/main')  
+    
+@app.route('/logout', methods=['GET'])
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     from authentication import auth_blueprint
