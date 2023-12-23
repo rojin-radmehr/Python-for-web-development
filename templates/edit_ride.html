@@ -80,31 +80,35 @@
     {% endwith %}
     <h1>Request Ride</h1>
 
-    <form action="/request" method="POST">
+    <form action="/edit_ride/{{ride._id}}" method="POST">
         <label for="start">Start:</label>
-        <input type="text" id="start" name="start" required>
+        <input type="text" id="start" name="start" value="{{ride.start}}" required>
 
         <label for="end">End:</label>
-        <input type="text" name="end" id="end" required>
+        <input type="text" name="end" id="end" value="{{ride.end}}" required>
         
         <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required>
+        <input type="date" id="date" name="date" value="{{ride.date}}" required>
 
         <label for="time">Time:</label>
-        <input type="time" id="time" name="time" required>
+        <input type="time" id="time" name="time" value="{{ride.time}}" required>
 
         <label for="car">Car:</label>
         <select id="car" name="car" required> 
             {% for car in cars %}
-                <option value="{{car}}">{{car}}</option>
+                {% if car == ride.car %}
+                    <option value="{{car}}" selected>{{car}}</option>
+                {% else %}
+                    <option value="{{car}}">{{car}}</option>
+                {% endif %}
             {% endfor %}
         </select>
             
 
-        <label for="description">Anything to add?</label>
-        <textarea id="description" name="description" rows="2" cols="30" maxlength="100" ></textarea>
+        <label for="description" >Anything to add?</label>
+        <textarea id="description" name="description" rows="4" cols="50" maxlength="100">{{ride.description}}</textarea>
 
-        <button type="submit">Request Ride</button>
+        <button type="submit">Change</button>
         <button onclick="redirectToMain()">Cancel</button>
     </form>
 

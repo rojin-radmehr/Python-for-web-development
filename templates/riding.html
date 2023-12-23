@@ -41,6 +41,13 @@
             p {
                 color: white;
             }
+            .ride {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+            .flash-messages {
+                color: white;
+            }
         </style>
     </head>
 <body>
@@ -56,6 +63,7 @@
     {% endwith %}
     <a class="btn" href="/logout">Logout</a>
     <a class="btn" href="/profile">Profile</a>
+    <a class="btn" href="/main">Home</a>
 
     <br>
     <h2>The Ride</h2>
@@ -63,18 +71,33 @@
     {% if user['role'] == 'driver' %}
         <a href="/cancel/{{ride._id}}" class="btn">Cancel the ride</a>
     {% endif %}
+    {% if user['role'] == 'user' %}
+        <a href="/riding/{{ride._id}}" class="btn">Refresh the page</a>
+    {% endif %}
     
     <div id="ride">
+        <p>Passenger : {{ride.posted_by}}</p>
+        <p>Driver : {{ride.driver}}</p>
+        <p>Driver car: {{driver_car}}</p>
         <p>Start : {{ride.start}}</p>
         <p>Destination : {{ride.end}}</p>
         <p>Status : {{ride.status}}</p>
         <p>Date : {{ride.date}}</p>
         <p>Time : {{ride.time}}</p>
         <p>Price : {{ride.price}}€</p>
-
+        <p>Car : {{ride.car}}</p>
+        <p>Details : {{ride.description}}</p>
     </div>
 
-    <a href="/edit/{{ride._id}}" class="btn">Change details</a>
+    {% if user['role'] == 'driver' %}
+        <a href="/finish_ride/{{ride._id}}" class="btn">The Ride Is Over!</a>
+    {% endif %}
+
+    <div id="map">
+        {{map | safe}}
+    </div>
+
+
 
     
 </body>

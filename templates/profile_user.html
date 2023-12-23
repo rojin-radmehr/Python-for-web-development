@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Auber - Home</title>
+        <title>Auber - Profile</title>
         <style>
             a{
                 text-decoration: none;
@@ -17,15 +17,15 @@
                 border-radius: 10px;
 
             }
+            .cov {
+                padding: 5px;
+                font-size: smaller;
+            }
             .btn:hover {
                 background-color:#5C8374;
                 color: white;
                 box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
             } 
-            .cov {
-                padding: 5px;
-                font-size: smaller;
-            }
             .req {
                 display: flex;
                 justify-content: center;
@@ -59,9 +59,6 @@
                 height: 250px;
                 
             }
-            .red {
-                color: red;
-            }
 
             h2 {
                 color: white;
@@ -70,7 +67,7 @@
                 color: #5C8374;
             }
             body {
-                padding: 2px;
+                padding: 5px;
                 background-color: #040D12 ;
             }
             .flash-messages {
@@ -90,33 +87,34 @@
         {% endif %}
     {% endwith %}
     <a class="btn" href="/logout">Logout</a>
-    <a class="btn" href="/profile">Profile</a>
-    <a class="btn" href="/main">Home</a>
+    <a class="btn" href="/">Home</a>
 
     <br>
-    <h2>Welcome, {{user.username}}!</h2>
+    <h2>{{user.username}}'s profile</h2>
 
-    <h4>Current available rides: </h4>
+    <h4>History of rides: </h4>
     <div class="container">
         {% for ride in rides %}
             <div class="cover">
                 <div class="ride">
-                    <div class="name">Name: {{ride.posted_by}}</div>
+                    <div class="name">Driver Name: {{ride.driver}}</div>
                     <div class="start">Start : {{ride.start}}</div>
                     <div class="end">End : {{ride.end}}</div>
                     <div class="date">Date : {{ride.date}}</div>
                     <div class="time">Time : {{ride.time}}</div>
-                    {% if your_car!=ride.car%}
-                        <div class="car red" >Car : {{ride.car}}</div>
-                    {%else%}
-                        <div class="car">Car : {{ride.car}}</div>
-                    {%endif%}
-                    
-                    <div class="price">Price : {{ride.price}} €</div>
+                    <div class="car">Car : {{ride.car}}</div>
                     <div class="description">Description : {{ride.description}}</div>
-                    
-                    <a class="btn cov" href="/take_ride/{{ride._id}}">Take Ride</a>
+                    <div class="status">Status: {{ride.status}}</div>
+                    <div class="price">Price : {{ride.price}}€</div>
+                    {% if ride.status == 'waiting'%}
+                        <a href="/cancel/{{ride._id}}" class="btn cov">Cancel the ride</a>
+                        <a href="/edit_ride/{{ride._id}}" class="btn cov">Change details</a>
+                        <a href="/wait_user/{{ride._id}}" class="btn cov">Wait for ride</a>
+                    {%elif ride.status == 'in-route'%}
+                        <a href="/wait_user/{{ride._id}}" class="btn cov">Wait for ride</a>
+                    {% endif %}
                 </div>
+                
             </div>
         {% endfor %}
     </div>

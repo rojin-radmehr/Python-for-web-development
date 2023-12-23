@@ -39,6 +39,9 @@
                 padding: 5px;
                 background-color: #040D12 ;
             }
+            .flash-messages {
+                color: white;
+            }
         </style>
     </head>
 <body>
@@ -54,6 +57,7 @@
     {% endwith %}
     <a class="btn" href="/logout">Logout</a>
     <a class="btn" href="/profile">Profile</a>
+    <a class="btn" href="/main">Home</a>
 
     <br>
     <h2>Welcome, {{user.username}}!</h2>

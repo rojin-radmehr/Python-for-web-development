@@ -1,0 +1,64 @@
+Python for Web Dev/Uber Clone/authentication/templates/user_register.html<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipt mail</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        #email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        p.signature {
+            margin-top: 30px;
+        }
+        .flash-messages {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="email-container">
+        <h2>Your Ride With Auber!</h2>
+        <p> Dear {{ride.posted_by}}, </p> 
+        <p>Thank you for choosing Auber for your transportation needs. We hope you enjoyed your recent ride with us. Below, you'll find the details of your trip: </p>
+        <p>Trip Details:
+
+            <ul>Date and Time: {{ride.date}} {{ride.time}}</ul>
+            <ul>Pickup Location: {{ride.start}}</ul>
+            <ul>Drop-off Location: {{ride.end}}</ul>
+            <ul>Driver's Name: {{ride.driver}}</ul>
+            <ul>Vehicle Type: {{ride.car}}</ul>
+            <ul>Trip Fare: {{ride.price}} €</ul>
+        </p>
+                
+        <p>If you have any questions, concerns, or require further assistance, please don't hesitate to contact our customer support team 
+            Thank you again for choosing Auber. We appreciate your business and look forward to serving you again in the future!</p>
+        <p class="signature">Best regards,<br>
+        The team at Auber</p>
+    </div>
+
+</body>
+</html>

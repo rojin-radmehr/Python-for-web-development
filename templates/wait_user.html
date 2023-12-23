@@ -25,7 +25,7 @@
             .req {
                 display: flex;
                 justify-content: center;
-                align-items: center;            
+                align-items: center;         
             }
 
             h2 {
@@ -39,6 +39,13 @@
                 background-color: #040D12 ;
             }
             p {
+                color: white;
+            }
+            .ride {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+            .flash-messages {
                 color: white;
             }
         </style>
@@ -56,6 +63,7 @@
     {% endwith %}
     <a class="btn" href="/logout">Logout</a>
     <a class="btn" href="/profile">Profile</a>
+    <a class="btn" href="/main">Home</a>
 
     <br>
     <h2>Waiting!</h2>
@@ -70,10 +78,15 @@
         <p>Date : {{ride.date}}</p>
         <p>Time : {{ride.time}}</p>
         <p>Price : {{ride.price}}€</p>
+        <p>Details : {{ride.description}}</p>
 
     </div>
 
-    <a href="/edit/{{ride._id}}" class="btn">Change details</a>
+    <a href="/edit_ride/{{ride._id}}" class="btn">Change details</a>
+
+    <div id="map">
+        {{map | safe}}
+    </div>
 
     
 </body>
