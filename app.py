@@ -148,6 +148,9 @@ class User(UserMixin):
 def before_request():
     g.start_time = time.time()
     print(f"Request started for {request.path} at {g.start_time}")
+    log_entry = f"Before Request: Request started for {request.path} at {g.start_time}\n"
+    with open('logs.txt', 'a+') as log_file:
+        log_file.write(log_entry)
 
 
 @app.after_request
@@ -158,8 +161,11 @@ def after_request(response):
     print(f"Elapsed time: {elapsed_time} seconds")
     print(f"Status Code: {response.status_code}")
     print(f"Request Method: {request.method}")
-    return response  
+    log_entry = f"After Request: Request ended for {request.path} at {end_time}\nElapsed time: {elapsed_time} seconds\nStatus Code: {response.status_code}\nRequest Method: {request.method}\n\n"
 
+    with open('logs.txt', 'a+') as log_file:
+        log_file.write(log_entry)
+    return response
      
 def get_db():
     db = getattr(g,'_database',None)
@@ -179,13 +185,16 @@ def create_table(db):
                    role TEXT NOT NULL,
                    car TEXT)
                    ''')
+        username = os.getenv('ADMIN_USERNAME')
+        password = os.getenv('ADMIN_PASSWORD')
+        cursor.execute('''INSERT INTO users (username, password, email, display_name, role, car) VALUES (?, ?, ?, ?, ?, ?)''', (username, password, '','admin','admin',''))
         db.commit()
 
 
         
 class loginform(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=100)])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=5)])
     submit = SubmitField('Login')
 
 class userregistrationform(FlaskForm):
@@ -304,7 +313,9 @@ def main_page():
     if current_user.role == "user":
         return render_template(f'home_user.html', user=current_user)
     elif current_user.role == "admin":
-        return render_template(f'home_admin.html', user=current_user)
+        with open('logs.txt', 'r') as log_file:
+            log_data = log_file.read()
+        return render_template('home_admin.html',user=current_user, log_data=log_data)
     elif current_user.role == "driver":
         rides = ride_collection.find({'status':'waiting'})
         your_car = current_user.car
@@ -335,6 +346,9 @@ def request_ride():
             time=request.form['time']
             car=request.form['car']
             description=request.form['description']
+            if start == None or end == None:
+                flash('Invalid coordinates','danger')
+                return redirect('/request')
             ride = {
                         'posted_by': current_user.username,
                         'start': start,
@@ -389,7 +403,9 @@ def edit_ride(ride_id):
             time=request.form['time']
             car=request.form['car']
             description=request.form['description']
-            
+            if start == None or end == None:
+                flash('Invalid coordinates','danger')
+                return redirect('/edit_ride/'+ride_id)
             ride_collection.update_one({'_id': ObjectId(ride_id)}, {'$set': {'start': start,'end': end,'date': date,'time' : time,'car': car,'description': description}})
             return redirect('/wait_user/'+ride_id)
         map_obj = folium.Map(location=ride['start'], zoom_start=13)

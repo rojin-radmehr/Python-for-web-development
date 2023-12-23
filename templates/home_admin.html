@@ -33,12 +33,22 @@
             }
             h3 {
                 text-align: center;
+                color: white;
+            }
+            h4 {
+                color: #93B1A6;
             }
             body {
                 padding: 5px;
                 background-color: #040D12 ;
             }
+            p {
+                color: white;
+            }
             .flash-messages {
+                color: white;
+            }
+            pre {
                 color: white;
             }
         </style>
@@ -55,11 +65,16 @@
         {% endif %}
     {% endwith %}
     <a class="btn" href="/logout">Logout</a>
+    <a href="/main" class="btn">Reload</a>
 
     <br>
     <h2>Welcome, {{user.username}}!</h2>
+    <h3>Request Information</h3>
+
 
     
-    
+    <pre>
+        {{ log_data }}
+    </pre>
 </body>
 </html>
