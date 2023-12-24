@@ -44,6 +44,7 @@
             .ride {
                 white-space: pre-wrap;
                 word-wrap: break-word;
+                text-align: center;
             }
             .flash-messages {
                 color: white;
@@ -70,9 +71,9 @@
 
     
     <div id="ride">
-        <p>Passenger : {{ride.posted_by}}</p>
-        <p>Driver : {{ride.driver}}</p>
-        <p>Driver car: {{driver_car}}</p>
+        <p>Passenger : {{rider.display_name}}</p>
+        <p>Driver : {{driver.display_name}}</p>
+        <p>Driver car: {{driver.car}}</p>
         <p>Start : {{ride.start}}</p>
         <p>Destination : {{ride.end}}</p>
         <p>Status : {{ride.status}}</p>

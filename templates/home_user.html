@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Auber</title>
+        <title>Auber - Home</title>
         <style>
             a{
                 text-decoration: none;
@@ -28,12 +28,48 @@
                 align-items: center; 
                 top: 50%;           
             }
+            .req {
+                display: flex;
+                justify-content: center;
+                align-items: center;            
+            }
+            .ride {
+                display: inline-block;
+                background-color: hwb(184 17% 66%);
+                color: white;
+                padding: 20px;
+                padding-top: 20px;
+                border-radius: 5px;
+                justify-content: center;
+                width: 300px;
+                height: 250px;
+                overflow: hidden;
+            }
+
+            .container {
+                align-items: left;
+                padding-top: 40px;
+                display: inline-block;
+                justify-content: center;
+
+            }
+
+            .cover {
+                display: inline-block;
+                padding: 10px;
+                justify-content: center;
+                height: 250px;
+                
+            }
 
             h2 {
                 color: white;
             }
             h3 {
                 text-align: center;
+            }
+            h4 {
+                color:#5C8374 ;
             }
             body {
                 padding: 5px;
@@ -57,14 +93,40 @@
     {% endwith %}
     <a class="btn" href="/logout">Logout</a>
     <a class="btn" href="/profile">Profile</a>
-    <a class="btn" href="/main">Home</a>
 
     <br>
     <h2>Welcome, {{user.username}}!</h2>
 
     <a href="/request" class="btn req">Request a ride</a>
 
-    
+    <h4>Current rides: </h4>
+    <div class="container">
+        {% for ride in rides %}
+            <div class="cover">
+                <div class="ride">
+                    {% if ride.status == 'in-route' %}
+                        <div class="name">Driver Name: {{ride.driver}}</div>
+                    {% endif %}
+                    <div class="start">Start : {{ride.start}}</div>
+                    <div class="end">End : {{ride.end}}</div>
+                    <div class="date">Date : {{ride.date}}</div>
+                    <div class="time">Time : {{ride.time}}</div>
+                    <div class="car">Car : {{ride.car}}</div>
+                    <div class="description">Description : {{ride.description}}</div>
+                    <div class="status">Status: {{ride.status}}</div>
+                    <div class="price">Price : {{ride.price}}€</div>
+                    {% if ride.status == 'waiting'%}
+                        <a href="/cancel/{{ride._id}}" class="btn cov">Cancel the ride</a>
+                        <a href="/edit_ride/{{ride._id}}" class="btn cov">Change details</a>
+                        <a href="/wait_user/{{ride._id}}" class="btn cov">Wait for ride</a>
+                    {%elif ride.status == 'in-route'%}
+                        <a href="/riding/{{ride._id}}" class="btn cov">Go to ride</a>
+                    {% endif %}
+                </div>
+                
+            </div>
+        {% endfor %}
+    </div>
     
 </body>
 </html>

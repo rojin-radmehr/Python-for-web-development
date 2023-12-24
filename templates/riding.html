@@ -72,20 +72,18 @@
     <br>
     <h2>The Ride</h2>
     
-    {% if user['role'] == 'driver' %}
-        <a href="/cancel/{{ride._id}}" class="btn">Cancel the ride</a>
-    {% endif %}
+    <a href="/cancel/{{ride._id}}" class="btn">Cancel the ride</a>
     {% if user['role'] == 'user' %}
         <a href="/riding/{{ride._id}}" class="btn">Refresh the page</a>
     {% endif %}
     
     <div id="ride">
-        <p>Passenger : {{ride.posted_by}}</p>
+        <p>Passenger : {{rider.display_name}}</p>
         {% if user['role'] == 'user' %}
             <img src="{{ url_for('get_image', file_id=driver_data.image) }}" alt="{{ driver.username }} Image">
         {% endif %}
-        <p>Driver : {{ride.driver}}</p>
-        <p>Driver car: {{driver_car}}</p>
+        <p>Driver : {{driver.display_name}}</p>
+        <p>Driver car: {{driver.car}}</p>
         <p>Start : {{ride.start}}</p>
         <p>Destination : {{ride.end}}</p>
         <p>Status : {{ride.status}}</p>
