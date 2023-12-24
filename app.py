@@ -2,7 +2,7 @@
 from flask import Flask,render_template,redirect,url_for,g ,flash,abort, session, request, send_file
 import sqlite3
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, EmailField, PasswordField, SubmitField, SelectField
+from wtforms import StringField, TextAreaField, EmailField, PasswordField, SubmitField, SelectField, FileField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 from flask_login import LoginManager,UserMixin, login_user, logout_user, current_user
 from flask_login import login_required
@@ -33,7 +33,9 @@ login_manager.login_view = "auth.login"
 
 client = MongoClient(os.getenv('MONGO_DB_URL'))
 client_db = client['rides']
+grid_fs= GridFS(client_db)
 ride_collection = client_db['data']
+driver_collection = client_db['drivers']
 
 app.config['MAIL_SERVER']=os.getenv('MAIL_SERVER')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
@@ -213,10 +215,24 @@ class driverregistrationform(FlaskForm):
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(),EqualTo('password')])
     display_name = StringField('Display Name', validators=[DataRequired(), Length(min=2, max=100)])
     vehicle = SelectField('Vehicle Model', choices=vehicles)
+    picture = FileField('Upload a picture')
     submit = SubmitField('Add New User')
     
 
-    
+@app.route('/image/<file_id>')
+def get_image(file_id):
+    try:
+        # Convert file_id to ObjectId (assuming it's stored as a string)
+        object_id = ObjectId(file_id)
+        # Retrieve the file from GridFS
+        file_data = grid_fs.get(object_id)
+        # Create a BytesIO object to send the file data
+        image_data = BytesIO(file_data.read())
+        # Send the file data as a response
+        return send_file(image_data, mimetype='image/jpeg')
+    except Exception as e:
+        print(f"Error retrieving image: {e}")
+        return "Error retrieving image", 500    
     
 def log_in(username, password):
     db=get_db()
@@ -444,8 +460,11 @@ def riding (ride_id):
         map_obj = folium.Map(location=ride['start'], zoom_start=13)
         folium.Marker(ride['start'], popup='Start',icon=folium.Icon(color='blue')).add_to(map_obj)
         folium.Marker(ride['end'], popup='End',icon=folium.Icon(color='green')).add_to(map_obj)
-        driver_car = get_user(ride['driver']).car
-        return render_template('riding.html', user=current_user, ride=ride, map=map_obj._repr_html_(), driver_car=driver_car)
+        driver = get_user(ride['driver'])
+        driver_data = driver_collection.find_one({'username': driver.username})
+        if ride['status'] == "finished":
+            return redirect('/invoice/'+ride_id)
+        return render_template('riding.html', user=current_user, ride=ride, map=map_obj._repr_html_(), driver_car=driver.car, driver_data=driver_data)
 
 @app.route('/finish_ride/<ride_id>')
 @login_required
@@ -464,10 +483,17 @@ def finish_ride (ride_id):
                 
         except Exception as e:
             flash(f'Error sending email: {str(e)}', 'danger')
-        return redirect('/main')
+        return redirect('/invoice/'+ride_id)
     else:
         flash('Only drivers can finish rides','danger')
         return redirect('/main')  
+    
+@app.route('/invoice/<ride_id>')
+@login_required
+def invoice (ride_id):
+    ride = ride_collection.find_one({'_id': ObjectId(ride_id)})
+    return render_template('invoice.html', user=current_user, ride=ride)
+
     
 
 if __name__ == '__main__':

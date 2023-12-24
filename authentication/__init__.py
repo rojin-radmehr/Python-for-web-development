@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import render_template,redirect,flash
 from flask_login import login_user,logout_user, login_required
-from app import loginform,get_user,userregistrationform,driverregistrationform,register_user,Message,app,mail
+from app import loginform,get_user,userregistrationform,driverregistrationform,register_user,Message,app,mail,grid_fs, driver_collection
 
 
 auth_blueprint = Blueprint('auth',__name__,template_folder='templates')
@@ -63,13 +63,20 @@ def d_register():
         display_name = form.display_name.data
         role = "driver"
         car = form.vehicle.data
+        file = form.picture.data
         if register_user(username, password, email, display_name, role,car):
             try:
                 msg = Message(' Welcome to Auber - Your Registration is Complete!', sender='auber@noreply.com',recipients=[email])
                 msg.html = render_template('email.html', username=username)
                 mail.send(msg)
                 flash('Email sent successfully!', 'success')
+                driver = {
+                    'username': username,
+                    'car': car,
+                    'picture': grid_fs.put(file,filename=file.filename),
+                }
                 
+                driver_collection.insert_one(driver)
             except Exception as e:
                 flash(f'Error sending email: {str(e)}', 'danger')
                 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Auber</title>
+        <title>Auber - invoice</title>
         <style>
             a{
                 text-decoration: none;
@@ -48,10 +48,6 @@
             .flash-messages {
                 color: white;
             }
-            .image {
-                width: 100px;
-                height: 100px;
-            }
         </style>
     </head>
 <body>
@@ -70,20 +66,11 @@
     <a class="btn" href="/main">Home</a>
 
     <br>
-    <h2>The Ride</h2>
-    
-    {% if user['role'] == 'driver' %}
-        <a href="/cancel/{{ride._id}}" class="btn">Cancel the ride</a>
-    {% endif %}
-    {% if user['role'] == 'user' %}
-        <a href="/riding/{{ride._id}}" class="btn">Refresh the page</a>
-    {% endif %}
+    <h2>Invoice</h2>
+
     
     <div id="ride">
         <p>Passenger : {{ride.posted_by}}</p>
-        {% if user['role'] == 'user' %}
-            <img src="{{ url_for('get_image', file_id=driver_data.image) }}" alt="{{ driver.username }} Image">
-        {% endif %}
         <p>Driver : {{ride.driver}}</p>
         <p>Driver car: {{driver_car}}</p>
         <p>Start : {{ride.start}}</p>
@@ -92,13 +79,11 @@
         <p>Date : {{ride.date}}</p>
         <p>Time : {{ride.time}}</p>
         <p>Price : {{ride.price}}€</p>
-        <p>Car : {{ride.car}}</p>
+        <p>Requested Car : {{ride.car}}</p>
         <p>Details : {{ride.description}}</p>
     </div>
 
-    {% if user['role'] == 'driver' %}
-        <a href="/finish_ride/{{ride._id}}" class="btn">The Ride Is Over!</a>
-    {% endif %}
+    <a href="/main" class="btn req">Accept</a>
 
     <div id="map">
         {{map | safe}}
