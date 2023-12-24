@@ -218,7 +218,7 @@ class loginform(FlaskForm):
 class userregistrationform(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=100)])
     email = EmailField('Email', validators=[DataRequired(),Email()])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=5)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(),EqualTo('password')])
     display_name = StringField('Display Name', validators=[DataRequired(), Length(min=2, max=100)])
     submit = SubmitField('Add New User')
@@ -226,7 +226,7 @@ class userregistrationform(FlaskForm):
 class driverregistrationform(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=100)])
     email = EmailField('Email', validators=[DataRequired(),Email()])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=5)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(),EqualTo('password')])
     display_name = StringField('Display Name', validators=[DataRequired(), Length(min=2, max=100)])
     vehicle = SelectField('Vehicle Model', choices=vehicles)
@@ -303,11 +303,15 @@ def check_coor(coor):
     #Latitude: 49.048670 Longitude: 10.195313
     #-33.865143, 151.209900
     #[49.048670, 10.195313]
+    #49.048670 10.195313
+    #(-33.865143, 151.209900)
     #...
     coordinate_patterns = [
         r"Latitude:\s*(-?\d+\.\d+)\s*Longitude:\s*(-?\d+\.\d+)",
+        r"\((-?\d+\.\d+),\s*(-?\d+\.\d+)\)",
         r"(-?\d+\.\d+)\s*,?\s*(-?\d+\.\d+)",
-        r"\[(-?\d+\.\d+),\s*(-?\d+\.\d+)\]"
+        r"\[(-?\d+\.\d+),?\s*(-?\d+\.\d+)\]",
+        r"\((-?\d+\.\d+)\s+(-?\d+\.\d+)\)"
     ]
     #check if the input matches any of the patterns
     for pattern in coordinate_patterns:
@@ -533,6 +537,9 @@ def riding (ride_id):
         #if the ride has been finished, redirect to the invoice page
         if ride['status'] == "finished":
             return redirect('/invoice/'+ride_id)
+        elif ride['status'] == "cancelled" or ride['status'] == "waiting":
+            flash('Ride cancelled','danger')
+            return redirect('/main')
         return render_template('riding.html', user=current_user, ride=ride, map=map_obj._repr_html_(), driver_car=driver.car, driver_data=driver_data, driver= driver,rider=rider)
 
 #for driver to indicate that they have arrived at the destination
